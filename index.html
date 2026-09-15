@@ -1,21 +1,161 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>آکادمی دکتر میرهلی | سامانه آزمون آنلاین</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>body{font-family:Tahoma;background:#f5f7fb;color:#172033;margin:0}header{background:#173b67;color:white;padding:18px}.wrap{max-width:1000px;margin:25px auto;padding:15px}.card{background:white;padding:20px;border-radius:16px;margin-bottom:15px}input,textarea{width:100%;box-sizing:border-box;padding:11px;margin:6px 0 12px;border:1px solid #ddd;border-radius:9px}button{padding:11px 18px;border:0;border-radius:9px;cursor:pointer}.primary{background:#173b67;color:white}.hidden{display:none}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.exam{border:1px solid #ddd;padding:12px;border-radius:10px;margin:8px 0}.msg{padding:10px;margin:10px 0;border-radius:8px;background:#fff0f0}.ok{background:#e8f8ed}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}}</style></head>
-<body><header><b>آکادمی دکتر میرهلی | سامانه آزمون آنلاین</b> <span id="who"></span></header><div class="wrap">
-<div id="login" class="card"><h2>ورود</h2><input id="email" type="email" placeholder="ایمیل"><input id="password" type="password" placeholder="رمز عبور"><button class="primary" id="loginBtn">ورود</button><div id="loginMsg"></div></div>
-<div id="app" class="hidden"><div class="tabs"><button data-tab="home">داشبورد</button><button data-tab="create">ساخت آزمون</button><button data-tab="list">آزمون‌ها</button><button id="logoutBtn">خروج</button></div>
-<div id="home" class="panel card"><h2>پنل مدیریت</h2><p>نسخه V2 فعال است و ساخت آزمون به Supabase متصل است.</p></div>
-<div id="create" class="panel card hidden"><h2>ساخت آزمون جدید</h2><div class="grid"><div>عنوان<input id="title"></div><div>رشته<input id="field"></div><div>زمان شروع<input id="starts" type="datetime-local"></div><div>مدت (دقیقه)<input id="duration" type="number" value="60" min="1"></div></div>
-<div>توضیحات<textarea id="description"></textarea></div><label><input id="negative" type="checkbox" checked style="width:auto"> نمره منفی</label><div>جریمه پاسخ غلط<input id="penalty" type="number" step=".0001" value=".3333"></div><div>دستورالعمل<textarea id="instructions"></textarea></div><button class="primary" id="createBtn">ثبت آزمون</button><div id="createMsg"></div></div>
-<div id="list" class="panel card hidden"><h2>آزمون‌های ثبت‌شده</h2><div id="examList"></div></div></div></div>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>آکادمی دکتر میرهلی | سامانه آزمون آنلاین</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f4f6fb;color:#18233b}
+button,input,textarea,select{font:inherit}.hidden{display:none!important}
+.shell{display:grid;grid-template-columns:255px 1fr;min-height:100vh}
+aside{background:linear-gradient(180deg,#101936,#18255a);color:#fff;padding:22px 14px;position:sticky;top:0;height:100vh}
+.brand{padding:10px 12px 25px}.brand h2{margin:0 0 7px;font-size:19px}.brand small{opacity:.7}
+.nav button{width:100%;border:0;background:transparent;color:#dce3ff;text-align:right;padding:13px;border-radius:12px;margin:3px 0;cursor:pointer}
+.nav button:hover,.nav button.active{background:rgba(255,255,255,.12);color:#fff}
+main{padding:24px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.badge{background:#fff;padding:10px 14px;border-radius:13px;box-shadow:0 8px 30px #26376a12}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 12px 35px #24315c0d;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,#5d42e8,#3468e8);color:white;padding:26px;border-radius:23px;margin-bottom:20px}
+.hero h1{margin:0 0 8px;font-size:26px}.hero p{margin:0;opacity:.9}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat{background:#fff;border-radius:18px;padding:18px}.stat b{font-size:27px;display:block;margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+label{display:block;font-size:13px;margin:3px 0 6px;color:#5e6780}input,textarea,select{width:100%;border:1px solid #dfe3ef;border-radius:12px;padding:11px 12px;background:#fbfcff;outline:none}textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:#7257e8;box-shadow:0 0 0 3px #7257e812}
+.btn{border:0;border-radius:12px;padding:11px 16px;cursor:pointer}.primary{background:linear-gradient(135deg,#6448e8,#3470e9);color:#fff}.soft{background:#eef1fb;color:#27345d}.danger{background:#ffe9ed;color:#b52645}
+.steps{display:flex;gap:8px;overflow:auto;margin-bottom:18px}.step{white-space:nowrap;padding:10px 14px;background:#eef1f8;border-radius:20px}.step.on{background:#654be7;color:#fff}
+.upload{border:2px dashed #cfd5e7;border-radius:16px;padding:22px;text-align:center;background:#fafbff}.upload input{margin-top:10px}
+.examrow{border:1px solid #e7eaf3;border-radius:15px;padding:15px;margin:10px 0;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.pill{font-size:12px;padding:5px 9px;border-radius:20px;background:#edf2ff;color:#3e55a1}
+.msg{padding:11px;border-radius:12px;margin-top:12px;background:#fff0f2;color:#a72d46}.msg.ok{background:#e9faef;color:#19713b}
+.loginWrap{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at top right,#5b4be8,#101936 55%)}
+.login{width:min(430px,92vw);background:#ffffffee;backdrop-filter:blur(12px);border-radius:25px;padding:28px;box-shadow:0 30px 80px #0004}.login h1{margin-top:0}.login input{margin-bottom:12px}
+.switch{display:flex;align-items:center;gap:8px;margin:10px 0}.switch input{width:auto}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:850px){.shell{grid-template-columns:1fr}aside{height:auto;position:static}.nav{display:flex;overflow:auto}.nav button{min-width:135px}.stats{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}main{padding:14px}}
+</style>
+</head>
+<body>
+<div id="loginView" class="loginWrap">
+ <div class="login">
+  <h1>آکادمی دکتر میرهلی</h1><p>سامانه هوشمند آزمون آنلاین</p>
+  <label>ایمیل</label><input id="email" type="email" placeholder="ایمیل حساب">
+  <label>رمز عبور</label><input id="password" type="password" placeholder="رمز عبور">
+  <button id="loginBtn" class="btn primary" style="width:100%">ورود به سامانه</button><div id="loginMsg"></div>
+ </div>
+</div>
+
+<div id="app" class="shell hidden">
+<aside>
+ <div class="brand"><h2>🎓 آکادمی دکتر میرهلی</h2><small>پنل مدیریت آزمون</small></div>
+ <div class="nav">
+  <button class="active" data-page="dashboard">⌂ داشبورد</button>
+  <button data-page="create">＋ ساخت آزمون</button>
+  <button data-page="exams">📝 آزمون‌ها</button>
+  <button data-page="questions">❓ مدیریت سؤالات</button>
+  <button data-page="students">👥 دانش‌آموزان</button>
+  <button data-page="results">📊 نتایج و کارنامه‌ها</button>
+  <button data-page="analytics">📈 تحلیل عملکرد</button>
+  <button data-page="settings">⚙ تنظیمات</button>
+ </div>
+</aside>
+<main>
+ <div class="top"><div><b id="pageTitle">داشبورد</b></div><div class="toolbar"><span id="adminName" class="badge">مدیر سیستم</span><button id="logoutBtn" class="btn soft">خروج</button></div></div>
+
+ <section id="dashboard" class="page">
+  <div class="hero"><h1>سلام، خوش اومدی 👋</h1><p>مدیریت آزمون‌ها، دانش‌آموزان و نتایج از یک داشبورد.</p></div>
+  <div class="stats"><div class="stat">دانش‌آموزان<b id="studentCount">—</b></div><div class="stat">کل آزمون‌ها<b id="examCount">—</b></div><div class="stat">آزمون‌های فعال<b id="activeCount">—</b></div><div class="stat">نتایج ثبت‌شده<b id="resultCount">—</b></div></div>
+  <div class="card"><h3>آخرین آزمون‌ها</h3><div id="recentExams">در حال دریافت...</div></div>
+ </section>
+
+ <section id="create" class="page hidden">
+  <div class="card">
+   <h2>ساخت آزمون جدید</h2>
+   <div class="steps"><span class="step on">۱. اطلاعات</span><span class="step">۲. فایل‌ها</span><span class="step">۳. تنظیمات</span><span class="step">۴. انتشار</span></div>
+   <div class="grid2"><div><label>عنوان آزمون *</label><input id="title"></div><div><label>رشته</label><input id="field" placeholder="مثلاً تجربی"></div>
+   <div><label>تاریخ و ساعت شروع *</label><input id="starts" type="datetime-local"></div><div><label>مدت آزمون (دقیقه) *</label><input id="duration" type="number" min="1" value="60"></div></div>
+   <label>توضیحات</label><textarea id="description"></textarea><label>دستورالعمل آزمون</label><textarea id="instructions"></textarea>
+  </div>
+  <div class="card"><h3>📄 فایل‌های آزمون</h3><div class="grid2">
+   <div class="upload"><b>PDF سؤالات</b><p>فایل دفترچه سؤالات را انتخاب کن</p><input id="questionPdf" type="file" accept="application/pdf"></div>
+   <div class="upload"><b>PDF پاسخنامه</b><p>در صورت آماده بودن پاسخنامه</p><input id="answerPdf" type="file" accept="application/pdf"></div>
+  </div><div id="uploadHint" style="margin-top:10px;color:#6c748b;font-size:13px">فایل‌ها در Supabase Storage ذخیره می‌شوند و مسیرشان در آزمون ثبت می‌شود.</div></div>
+  <div class="card"><h3>تنظیمات برگزاری</h3><div class="grid3">
+   <div><label>جریمه پاسخ غلط</label><input id="penalty" type="number" step=".0001" value=".3333"></div>
+   <div><label>حداکثر دفعات شرکت</label><input id="maxAttempts" type="number" min="1" value="1"></div>
+   <div><label>وضعیت اولیه</label><select id="status"><option value="draft">پیش‌نویس</option><option value="published">انتشار</option></select></div>
+  </div>
+  <div class="switch"><input id="negative" type="checkbox" checked><span>نمره منفی فعال باشد</span></div>
+  <div class="switch"><input id="resume" type="checkbox" checked><span>اجازه ادامه آزمون بعد از خروج</span></div>
+  <div class="switch"><input id="showResult" type="checkbox"><span>نتیجه برای دانش‌آموز نمایش داده شود</span></div>
+  <div class="switch"><input id="showAnswers" type="checkbox"><span>پاسخنامه برای دانش‌آموز منتشر شود</span></div>
+  <button id="createBtn" class="btn primary">✓ ثبت آزمون</button><div id="createMsg"></div></div>
+ </section>
+
+ <section id="exams" class="page hidden"><div class="card"><h2>آزمون‌ها</h2><div id="examList">در حال دریافت...</div></div></section>
+ <section id="questions" class="page hidden"><div class="card"><h2>مدیریت سؤالات</h2><p>بعد از ساخت آزمون، این بخش برای افزودن درس و سؤال‌های تکی استفاده می‌شود. آزمون PDF نیز از پاسخ‌برگ آنلاین پشتیبانی خواهد کرد.</p></div></section>
+ <section id="students" class="page hidden"><div class="card"><h2>دانش‌آموزان</h2><p>لیست و مدیریت حساب دانش‌آموزان در مرحله بعد به این بخش متصل می‌شود.</p></div></section>
+ <section id="results" class="page hidden"><div class="card"><h2>نتایج و کارنامه‌ها</h2><p>نتایج آزمون‌ها و کارنامه هر دانش‌آموز اینجا نمایش داده می‌شود.</p></div></section>
+ <section id="analytics" class="page hidden"><div class="card"><h2>تحلیل عملکرد</h2><p>درصد صحیح، غلط، نزده و تحلیل درس‌ها در این بخش نمایش داده می‌شود.</p></div></section>
+ <section id="settings" class="page hidden"><div class="card"><h2>تنظیمات</h2><p>تنظیمات عمومی سامانه.</p></div></section>
+</main></div>
+
 <script>
-const sb=supabase.createClient('https://tdyocmljkqknxjecswkn.supabase.co','sb_publishable_rZ7_cS6AKM4TXqBNJJJVqA_DQepIYRl');
-let currentUser=null;
-function showMsg(el,t,ok=false){el.innerHTML='<div class="msg '+(ok?'ok':'')+'">'+t+'</div>'}
-async function enter(u){currentUser=u;const {data,error}=await sb.from('profiles').select('id,full_name,role').eq('id',u.id).single();if(error||data.role!=='admin'){showMsg(loginMsg,'دسترسی مدیر تأیید نشد.');return}login.classList.add('hidden');app.classList.remove('hidden');who.textContent=' — '+(data.full_name||'مدیر سیستم');await loadExams()}
-loginBtn.onclick=async()=>{const {data,error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error)return showMsg(loginMsg,'خطا: '+error.message);await enter(data.user)}
-logoutBtn.onclick=async()=>{await sb.auth.signOut();location.reload()}
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=async()=>{document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));document.getElementById(b.dataset.tab).classList.remove('hidden');if(b.dataset.tab==='list')await loadExams()})
-createBtn.onclick=async()=>{if(!title.value.trim()||!starts.value||!duration.value)return showMsg(createMsg,'عنوان، زمان شروع و مدت آزمون الزامی است.');const row={title:title.value.trim(),description:description.value.trim()||null,starts_at:new Date(starts.value).toISOString(),duration_minutes:+duration.value,negative_marking:negative.checked,wrong_penalty:+penalty.value,field_of_study:field.value.trim()||null,instructions:instructions.value.trim()||null,created_by:currentUser.id};const {data,error}=await sb.from('exams').insert(row).select('id,title').single();if(error)return showMsg(createMsg,'خطا در ثبت: '+error.message);showMsg(createMsg,'آزمون «'+data.title+'» با موفقیت ثبت شد ✓',true);await loadExams()}
-async function loadExams(){const {data,error}=await sb.from('exams').select('id,title,starts_at,duration_minutes,status,field_of_study').order('created_at',{ascending:false});if(error){examList.innerHTML=error.message;return}examList.innerHTML=(data||[]).map(e=>'<div class="exam"><b>'+e.title+'</b><br>شروع: '+new Date(e.starts_at).toLocaleString('fa-IR')+' | مدت: '+e.duration_minutes+' دقیقه | وضعیت: '+e.status+'</div>').join('')||'هنوز آزمونی ثبت نشده.'}
+const SUPABASE_URL='https://tdyocmljkqknxjecswkn.supabase.co';
+const SUPABASE_KEY='sb_publishable_rZ7_cS6AKM4TXqBNJJJVqA_DQepIYRl';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let user=null, profile=null;
+const $=id=>document.getElementById(id);
+function msg(id,text,ok=false){$(id).innerHTML='<div class="msg '+(ok?'ok':'')+'">'+text+'</div>'}
+function safe(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function enter(u){
+ user=u; const {data,error}=await sb.from('profiles').select('id,full_name,role').eq('id',u.id).single();
+ if(error||!data||data.role!=='admin'){msg('loginMsg','این حساب دسترسی مدیریت ندارد.');return}
+ profile=data;$('loginView').classList.add('hidden');$('app').classList.remove('hidden');$('adminName').textContent=data.full_name||'مدیر سیستم';await refresh();
+}
+$('loginBtn').onclick=async()=>{const {data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return msg('loginMsg','خطا در ورود: '+error.message);await enter(data.user)}
+$('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()}
+document.querySelectorAll('[data-page]').forEach(b=>b.onclick=async()=>{
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');
+ $('pageTitle').textContent=b.textContent.trim(); if(b.dataset.page==='exams')await loadExams();
+});
+async function uploadPdf(file,folder){
+ if(!file)return null;
+ const path=folder+'/'+crypto.randomUUID()+'-'+file.name.replace(/[^\w.\-]+/g,'_');
+ const {error}=await sb.storage.from('exam-files').upload(path,file,{contentType:'application/pdf',upsert:false});
+ if(error)throw new Error('آپلود PDF: '+error.message); return path;
+}
+$('createBtn').onclick=async()=>{
+ const t=$('title').value.trim(), st=$('starts').value, dur=+$('duration').value;
+ if(!t||!st||!dur)return msg('createMsg','عنوان، زمان شروع و مدت آزمون الزامی است.');
+ $('createBtn').disabled=true;$('createBtn').textContent='در حال ثبت...';
+ try{
+  const qpath=await uploadPdf($('questionPdf').files[0],'questions');
+  const apath=await uploadPdf($('answerPdf').files[0],'answers');
+  const row={title:t,description:$('description').value.trim()||null,starts_at:new Date(st).toISOString(),duration_minutes:dur,
+   negative_marking:$('negative').checked,wrong_penalty:+$('penalty').value,status:$('status').value,
+   show_result:$('showResult').checked,show_answers:$('showAnswers').checked,created_by:user.id,
+   field_of_study:$('field').value.trim()||null,question_pdf_path:qpath,answer_pdf_path:apath,
+   results_published:$('showResult').checked,answers_published:$('showAnswers').checked,
+   allow_resume:$('resume').checked,max_attempts:+$('maxAttempts').value,instructions:$('instructions').value.trim()||null};
+  const {data,error}=await sb.from('exams').insert(row).select('id,title').single();if(error)throw error;
+  msg('createMsg','آزمون «'+safe(data.title)+'» با موفقیت ثبت شد ✓',true);await refresh();
+ }catch(e){msg('createMsg','خطا: '+safe(e.message))}
+ finally{$('createBtn').disabled=false;$('createBtn').textContent='✓ ثبت آزمون'}
+}
+async function loadExams(){
+ const {data,error}=await sb.from('exams').select('id,title,starts_at,duration_minutes,status,field_of_study,question_pdf_path,results_published,answers_published').order('created_at',{ascending:false});
+ if(error){$('examList').textContent=error.message;return}
+ $('examList').innerHTML=(data||[]).map(e=>`<div class="examrow"><div><b>${safe(e.title)}</b><br><small>${new Date(e.starts_at).toLocaleString('fa-IR')} • ${e.duration_minutes} دقیقه ${e.field_of_study?'• '+safe(e.field_of_study):''}</small></div><div><span class="pill">${safe(e.status)}</span> ${e.question_pdf_path?'<span class="pill">PDF ✓</span>':''}</div></div>`).join('')||'هنوز آزمونی ثبت نشده.';
+ return data||[];
+}
+async function refresh(){
+ const exams=await loadExams()||[];$('examCount').textContent=exams.length;$('activeCount').textContent=exams.filter(x=>x.status==='published').length;
+ $('recentExams').innerHTML=$('examList').innerHTML;
+ const {count:sc}=await sb.from('profiles').select('*',{count:'exact',head:true}).eq('role','student');$('studentCount').textContent=sc??'—';
+ const {count:rc}=await sb.from('subject_results').select('*',{count:'exact',head:true});$('resultCount').textContent=rc??'—';
+}
 (async()=>{const {data:{session}}=await sb.auth.getSession();if(session)await enter(session.user)})();
-</script></body></html>
+</script>
+</body></html>

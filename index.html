@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>آکادمی دکتر میرهلی | سامانه آزمون آنلاین</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f7f8fa;color:#18202a}
+header{background:#fff;border-bottom:1px solid #e7e9ee;padding:18px 6%;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:800;font-size:20px}.tag{font-size:12px;color:#6b7280}
+main{min-height:calc(100vh - 78px);display:grid;place-items:center;padding:28px}
+.card{width:min(440px,100%);background:#fff;border:1px solid #e6e8ec;border-radius:22px;padding:28px;box-shadow:0 16px 45px rgba(0,0,0,.06)}
+h1{font-size:24px;margin:0 0 8px}.muted{color:#6b7280;line-height:1.8}
+label{display:block;margin:18px 0 7px;font-weight:700;font-size:14px}
+input{width:100%;padding:14px;border:1px solid #d9dde5;border-radius:12px;font-size:15px;outline:none}
+input:focus{border-color:#e14b3f}
+button{width:100%;border:0;border-radius:12px;padding:14px;margin-top:20px;background:#e14b3f;color:white;font-weight:800;font-size:15px;cursor:pointer}
+button.secondary{background:#eef0f3;color:#20252c}.msg{margin-top:14px;padding:11px;border-radius:10px;display:none;line-height:1.7}
+.error{display:block;background:#fff0ef;color:#a52c25}.ok{display:block;background:#edf9f0;color:#176b32}
+.panel{width:min(900px,100%);display:none}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:20px}
+.box{background:#fff;border:1px solid #e6e8ec;border-radius:18px;padding:20px}.role{display:inline-block;padding:7px 11px;border-radius:99px;background:#f1f3f5;font-size:12px}
+</style>
+</head>
+<body>
+<header><div><div class="brand">آکادمی دکتر میرهلی</div><div class="tag">سامانه آزمون آنلاین</div></div><div id="status" class="tag">ورود امن</div></header>
+<main>
+<section id="login" class="card">
+<h1>ورود به سامانه</h1>
+<p class="muted">برای ورود به پنل اختصاصی، ایمیل و رمز عبور حساب خود را وارد کنید.</p>
+<label>ایمیل</label><input id="email" type="email" autocomplete="username" placeholder="example@gmail.com">
+<label>رمز عبور</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+<button id="loginBtn">ورود به پنل</button>
+<div id="msg" class="msg"></div>
+</section>
+
+<section id="panel" class="panel">
+<div class="box">
+<span id="roleBadge" class="role"></span>
+<h1 id="welcome">خوش آمدید</h1>
+<p id="panelText" class="muted"></p>
+<button id="logoutBtn" class="secondary">خروج از حساب</button>
+</div>
+<div id="cards" class="grid"></div>
+</section>
+</main>
+<script>
+const SUPABASE_URL='https://tdyocmljkqknxjecswkn.supabase.co';
+const SUPABASE_KEY='sb_publishable_rZ7_cS6AKM4TXqBNJJJVqA_DQepIYRl';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+function message(t,type='error'){ $('msg').textContent=t;$('msg').className='msg '+type; }
+function showLogin(){ $('login').style.display='block';$('panel').style.display='none';$('status').textContent='ورود امن'; }
+function renderPanel(profile,user){
+ $('login').style.display='none';$('panel').style.display='block';
+ const admin=profile?.role==='admin';
+ $('roleBadge').textContent=admin?'مدیر سیستم':'دانش‌آموز';
+ $('welcome').textContent='خوش آمدید'+(profile?.full_name?'، '+profile.full_name:'');
+ $('panelText').textContent=admin?'پنل مدیریت سامانه آماده است. در مرحله بعد مدیریت کاربران، آزمون‌ها، سؤالات و نتایج به این بخش اضافه می‌شود.':'پنل دانش‌آموز آماده است. آزمون‌های فعال و کارنامه‌ها در مرحله بعد اینجا نمایش داده می‌شوند.';
+ $('status').textContent=user.email||'آنلاین';
+ const items=admin?['مدیریت کاربران','ساخت آزمون','مدیریت سؤالات','نتایج و کارنامه‌ها']:['آزمون‌های من','کارنامه‌ها','تحلیل عملکرد'];
+ $('cards').innerHTML=items.map(x=>`<div class="box"><b>${x}</b><p class="muted">در نسخه بعدی فعال می‌شود.</p></div>`).join('');
+}
+async function loadUser(){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user)return showLogin();
+ const {data:profile,error}=await sb.from('profiles').select('id,full_name,role').eq('id',user.id).maybeSingle();
+ if(error){showLogin();message('خطا در دریافت پروفایل: '+error.message);return;}
+ renderPanel(profile,user);
+}
+$('loginBtn').onclick=async()=>{
+ $('loginBtn').disabled=true;message('در حال ورود…','ok');
+ const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+ $('loginBtn').disabled=false;
+ if(error)return message('ورود ناموفق: '+error.message);
+ $('msg').className='msg';await loadUser();
+};
+$('logoutBtn').onclick=async()=>{await sb.auth.signOut();showLogin();};
+loadUser();
+</script>
+</body></html>

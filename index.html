@@ -3,79 +3,62 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>آکادمی دکتر میرهلی | سامانه آزمون آنلاین</title>
+<title>آکادمی دکتر میرهلی | سامانه جامع آزمون</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f7f8fa;color:#18202a}
-header{background:#fff;border-bottom:1px solid #e7e9ee;padding:18px 6%;display:flex;justify-content:space-between;align-items:center}
-.brand{font-weight:800;font-size:20px}.tag{font-size:12px;color:#6b7280}
-main{min-height:calc(100vh - 78px);display:grid;place-items:center;padding:28px}
-.card{width:min(440px,100%);background:#fff;border:1px solid #e6e8ec;border-radius:22px;padding:28px;box-shadow:0 16px 45px rgba(0,0,0,.06)}
-h1{font-size:24px;margin:0 0 8px}.muted{color:#6b7280;line-height:1.8}
-label{display:block;margin:18px 0 7px;font-weight:700;font-size:14px}
-input{width:100%;padding:14px;border:1px solid #d9dde5;border-radius:12px;font-size:15px;outline:none}
-input:focus{border-color:#e14b3f}
-button{width:100%;border:0;border-radius:12px;padding:14px;margin-top:20px;background:#e14b3f;color:white;font-weight:800;font-size:15px;cursor:pointer}
-button.secondary{background:#eef0f3;color:#20252c}.msg{margin-top:14px;padding:11px;border-radius:10px;display:none;line-height:1.7}
-.error{display:block;background:#fff0ef;color:#a52c25}.ok{display:block;background:#edf9f0;color:#176b32}
-.panel{width:min(900px,100%);display:none}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:20px}
-.box{background:#fff;border:1px solid #e6e8ec;border-radius:18px;padding:20px}.role{display:inline-block;padding:7px 11px;border-radius:99px;background:#f1f3f5;font-size:12px}
-</style>
-</head>
+:root{--red:#d93445;--dark:#171922;--muted:#747986;--line:#e8e9ee;--bg:#f6f7f9;--white:#fff;--green:#158451}
+*{box-sizing:border-box}body{margin:0;font-family:"Vazirmatn",Tahoma,sans-serif;background:var(--bg);color:var(--dark)}
+button,input,select,textarea{font:inherit}.hidden{display:none!important}
+header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 4%;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:11px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#e64252,#b9182c);color:#fff;display:grid;place-items:center;font-weight:900}
+.brand b{font-size:18px}.sub{font-size:11px;color:var(--muted)}.pill{background:#f0f1f4;padding:7px 11px;border-radius:99px;font-size:12px}
+.loginwrap{min-height:calc(100vh - 72px);display:grid;place-items:center;padding:25px;background:radial-gradient(circle at 80% 10%,#ffe9ec,transparent 30%)}
+.login,.card{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 45px rgba(20,25,35,.06)}.login{width:min(440px,100%);padding:30px}
+h1{font-size:25px;margin:0 0 6px}.muted{color:var(--muted);line-height:1.9}.field{margin-top:15px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:7px}
+.input{width:100%;border:1px solid #dfe1e6;border-radius:13px;padding:12px 13px;outline:none;background:#fff}.input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(217,52,69,.08)}
+textarea.input{min-height:95px;resize:vertical}.btn{border:0;border-radius:12px;padding:11px 15px;background:var(--red);color:#fff;font-weight:800;cursor:pointer}.btn.full{width:100%;margin-top:19px}.btn.soft{background:#eff0f3;color:#333}.btn.sm{padding:7px 10px;font-size:12px}
+.msg{display:none;margin-top:13px;padding:10px 12px;border-radius:11px;font-size:13px}.msg.err{display:block;background:#fff0f2;color:#a82030}.msg.ok{display:block;background:#ebf8f0;color:#126f42}
+.app{display:grid;grid-template-columns:245px 1fr;min-height:calc(100vh - 72px)}aside{background:#fff;border-left:1px solid var(--line);padding:20px 13px}
+.nav{width:100%;border:0;background:transparent;text-align:right;padding:12px;border-radius:11px;margin:3px 0;cursor:pointer;color:#555;font-weight:600}.nav:hover,.nav.active{background:#fff0f2;color:var(--red)}
+.content{padding:28px 3.5%;width:100%;max-width:1450px;margin:auto}.page{display:none}.page.active{display:block}.head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.stats,.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.stat,.card{padding:19px}.stat strong{font-size:28px;display:block;margin-top:7px}.stat span{font-size:12px;color:var(--muted)}
+.quick{margin-top:15px}.quick .card{cursor:pointer;transition:.2s}.quick .card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(20,25,35,.08)}.ico{width:40px;height:40px;border-radius:12px;background:#fff0f2;color:var(--red);display:grid;place-items:center;font-size:19px;margin-bottom:12px}
+.quick p{font-size:12px;color:var(--muted);margin:6px 0 0}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.span2{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+.tablewrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:18px}.table{width:100%;border-collapse:collapse;min-width:680px}.table th,.table td{text-align:right;padding:13px 14px;border-bottom:1px solid #f0f0f2;font-size:13px}.table th{background:#fafafa;color:#666}
+.badge{display:inline-block;padding:5px 9px;border-radius:99px;background:#f0f1f4;font-size:11px}.badge.green{background:#eaf8ef;color:#147342}.badge.red{background:#fff0f2;color:#b51f31}.empty{text-align:center;padding:40px;color:var(--muted)}
+.modalbg{position:fixed;inset:0;background:#1118;display:none;place-items:center;padding:18px;z-index:50}.modalbg.show{display:grid}.modal{width:min(650px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;padding:22px}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{display:flex;overflow:auto;position:sticky;top:72px;z-index:15;border-left:0;border-bottom:1px solid var(--line);padding:7px}.nav{min-width:max-content;text-align:center}.stats,.quick{grid-template-columns:1fr 1fr}.content{padding:18px}}
+@media(max-width:560px){.stats,.quick,.formgrid{grid-template-columns:1fr}.span2{grid-column:auto}.brand b{font-size:15px}.content{padding:13px}}
+</style></head>
 <body>
-<header><div><div class="brand">آکادمی دکتر میرهلی</div><div class="tag">سامانه آزمون آنلاین</div></div><div id="status" class="tag">ورود امن</div></header>
-<main>
-<section id="login" class="card">
-<h1>ورود به سامانه</h1>
-<p class="muted">برای ورود به پنل اختصاصی، ایمیل و رمز عبور حساب خود را وارد کنید.</p>
-<label>ایمیل</label><input id="email" type="email" autocomplete="username" placeholder="example@gmail.com">
-<label>رمز عبور</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
-<button id="loginBtn">ورود به پنل</button>
-<div id="msg" class="msg"></div>
-</section>
-
-<section id="panel" class="panel">
-<div class="box">
-<span id="roleBadge" class="role"></span>
-<h1 id="welcome">خوش آمدید</h1>
-<p id="panelText" class="muted"></p>
-<button id="logoutBtn" class="secondary">خروج از حساب</button>
-</div>
-<div id="cards" class="grid"></div>
-</section>
-</main>
+<header><div class="brand"><div class="logo">DM</div><div><b>آکادمی دکتر میرهلی</b><div class="sub">سامانه جامع آزمون و ارزیابی</div></div></div><div style="display:flex;gap:8px;align-items:center"><span id="topUser" class="pill">ورود امن</span><button id="logout" class="btn soft sm hidden">خروج</button></div></header>
+<section id="loginWrap" class="loginwrap"><div class="login"><h1>ورود به سامانه</h1><p class="muted">ایمیل و رمز عبور حساب خود را وارد کنید.</p><div class="field"><label>ایمیل</label><input id="email" class="input" type="email"></div><div class="field"><label>رمز عبور</label><input id="password" class="input" type="password"></div><button id="loginBtn" class="btn full">ورود به پنل</button><div id="loginMsg" class="msg"></div></div></section>
+<section id="app" class="app hidden"><aside>
+<button class="nav active" data-page="dashboard">⌂ داشبورد</button><button class="nav admin" data-page="users">👥 مدیریت کاربران</button><button class="nav admin" data-page="create">＋ ساخت آزمون</button><button class="nav admin" data-page="questions">❓ مدیریت سؤالات</button><button class="nav" data-page="exams">📝 آزمون‌ها</button><button class="nav" data-page="results">📊 نتایج و کارنامه‌ها</button>
+</aside><div class="content">
+<section id="dashboard" class="page active"><div class="head"><div><h1 id="welcome">خوش آمدید</h1><p class="muted">نمای کلی سامانه</p></div><span id="role" class="badge red"></span></div><div class="stats"><div class="card stat"><span>کاربران</span><strong id="su">—</strong></div><div class="card stat"><span>آزمون‌ها</span><strong id="se">—</strong></div><div class="card stat"><span>سؤالات</span><strong id="sq">—</strong></div><div class="card stat"><span>پاسخ‌ها</span><strong id="sa">—</strong></div></div><div id="quick" class="quick"><div class="card go" data-page="users"><div class="ico">👥</div><b>مدیریت کاربران</b><p>مشاهده کاربران سامانه</p></div><div class="card go" data-page="create"><div class="ico">＋</div><b>ساخت آزمون</b><p>تعریف آزمون جدید</p></div><div class="card go" data-page="questions"><div class="ico">❓</div><b>مدیریت سؤالات</b><p>بانک سؤالات تستی</p></div><div class="card go" data-page="results"><div class="ico">📊</div><b>نتایج و کارنامه‌ها</b><p>مشاهده عملکرد</p></div></div></section>
+<section id="users" class="page"><div class="head"><div><h1>مدیریت کاربران</h1><p class="muted">فهرست کاربران ثبت‌شده</p></div><button class="btn soft" onclick="loadUsers()">به‌روزرسانی</button></div><div class="tablewrap"><table class="table"><thead><tr><th>نام</th><th>شناسه</th><th>نقش</th><th>تاریخ</th></tr></thead><tbody id="usersBody"></tbody></table></div></section>
+<section id="create" class="page"><div class="head"><div><h1>ساخت آزمون جدید</h1><p class="muted">مشخصات آزمون را تکمیل کنید.</p></div></div><div class="card"><div class="formgrid"><div class="field"><label>عنوان آزمون *</label><input id="et" class="input" placeholder="مثلاً آزمون جامع شماره ۱"></div><div class="field"><label>درس</label><select id="es" class="input"><option value="">بدون درس مشخص</option></select></div><div class="field"><label>مدت آزمون (دقیقه)</label><input id="ed" class="input" type="number" value="60"></div><div class="field"><label>وضعیت</label><select id="ea" class="input"><option value="true">فعال</option><option value="false">غیرفعال</option></select></div><div class="field"><label>شروع</label><input id="est" class="input" type="datetime-local"></div><div class="field"><label>پایان</label><input id="een" class="input" type="datetime-local"></div><div class="field span2"><label>توضیحات</label><textarea id="ede" class="input"></textarea></div></div><button id="saveExam" class="btn full">ذخیره آزمون</button><div id="examMsg" class="msg"></div></div></section>
+<section id="questions" class="page"><div class="head"><div><h1>مدیریت سؤالات</h1><p class="muted">ثبت و مشاهده تست‌های چهارگزینه‌ای</p></div><button id="newQ" class="btn">＋ سؤال جدید</button></div><div class="tablewrap"><table class="table"><thead><tr><th>سؤال</th><th>آزمون</th><th>پاسخ</th><th>امتیاز</th></tr></thead><tbody id="qbody"></tbody></table></div></section>
+<section id="exams" class="page"><div class="head"><div><h1>آزمون‌ها</h1><p class="muted">فهرست آزمون‌های سامانه</p></div><button class="btn soft" onclick="loadExams()">به‌روزرسانی</button></div><div id="examCards" class="quick"></div></section>
+<section id="results" class="page"><div class="head"><div><h1>نتایج و کارنامه‌ها</h1><p class="muted">سوابق آزمون‌ها و امتیازها</p></div><button class="btn soft" onclick="loadResults()">به‌روزرسانی</button></div><div class="tablewrap"><table class="table"><thead><tr><th>کاربر</th><th>آزمون</th><th>امتیاز</th><th>وضعیت</th><th>زمان</th></tr></thead><tbody id="rbody"></tbody></table></div></section>
+</div></section>
+<div id="qmodal" class="modalbg"><div class="modal"><div class="head"><h1>ثبت سؤال جدید</h1><button class="btn soft sm" onclick="qmodal.classList.remove('show')">بستن</button></div><div class="field"><label>آزمون *</label><select id="qe" class="input"></select></div><div class="field"><label>متن سؤال *</label><textarea id="qt" class="input"></textarea></div><div class="formgrid"><div class="field"><label>گزینه A</label><input id="qa" class="input"></div><div class="field"><label>گزینه B</label><input id="qb" class="input"></div><div class="field"><label>گزینه C</label><input id="qc" class="input"></div><div class="field"><label>گزینه D</label><input id="qd" class="input"></div><div class="field"><label>پاسخ صحیح</label><select id="qco" class="input"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><div class="field"><label>امتیاز</label><input id="qp" class="input" type="number" value="1"></div></div><button id="saveQ" class="btn full">ثبت سؤال</button><div id="qmsg" class="msg"></div></div></div>
 <script>
-const SUPABASE_URL='https://tdyocmljkqknxjecswkn.supabase.co';
-const SUPABASE_KEY='sb_publishable_rZ7_cS6AKM4TXqBNJJJVqA_DQepIYRl';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=id=>document.getElementById(id);
-function message(t,type='error'){ $('msg').textContent=t;$('msg').className='msg '+type; }
-function showLogin(){ $('login').style.display='block';$('panel').style.display='none';$('status').textContent='ورود امن'; }
-function renderPanel(profile,user){
- $('login').style.display='none';$('panel').style.display='block';
- const admin=profile?.role==='admin';
- $('roleBadge').textContent=admin?'مدیر سیستم':'دانش‌آموز';
- $('welcome').textContent='خوش آمدید'+(profile?.full_name?'، '+profile.full_name:'');
- $('panelText').textContent=admin?'پنل مدیریت سامانه آماده است. در مرحله بعد مدیریت کاربران، آزمون‌ها، سؤالات و نتایج به این بخش اضافه می‌شود.':'پنل دانش‌آموز آماده است. آزمون‌های فعال و کارنامه‌ها در مرحله بعد اینجا نمایش داده می‌شوند.';
- $('status').textContent=user.email||'آنلاین';
- const items=admin?['مدیریت کاربران','ساخت آزمون','مدیریت سؤالات','نتایج و کارنامه‌ها']:['آزمون‌های من','کارنامه‌ها','تحلیل عملکرد'];
- $('cards').innerHTML=items.map(x=>`<div class="box"><b>${x}</b><p class="muted">در نسخه بعدی فعال می‌شود.</p></div>`).join('');
-}
-async function loadUser(){
- const {data:{user}}=await sb.auth.getUser();
- if(!user)return showLogin();
- const {data:profile,error}=await sb.from('profiles').select('id,full_name,role').eq('id',user.id).maybeSingle();
- if(error){showLogin();message('خطا در دریافت پروفایل: '+error.message);return;}
- renderPanel(profile,user);
-}
-$('loginBtn').onclick=async()=>{
- $('loginBtn').disabled=true;message('در حال ورود…','ok');
- const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
- $('loginBtn').disabled=false;
- if(error)return message('ورود ناموفق: '+error.message);
- $('msg').className='msg';await loadUser();
-};
-$('logoutBtn').onclick=async()=>{await sb.auth.signOut();showLogin();};
-loadUser();
-</script>
-</body></html>
+const SUPABASE_URL='https://tdyocmljkqknxjecswkn.supabase.co',SUPABASE_KEY='sb_publishable_rZ7_cS6AKM4TXqBNJJJVqA_DQepIYRl',sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),$=x=>document.getElementById(x);let me,profile,isAdmin=false,exams=[];
+const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])),pick=(o,a,d='—')=>{for(let k of a)if(o?.[k]!=null&&o[k]!=='')return o[k];return d},fmt=d=>d?new Date(d).toLocaleString('fa-IR'):'—';
+function msg(id,t,ok=false){$(id).textContent=t;$(id).className='msg '+(ok?'ok':'err')}function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(p)?.classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===p));if(p==='users')loadUsers();if(p==='create')loadSubjects();if(p==='questions'){loadExams();loadQuestions()}if(p==='exams')loadExams();if(p==='results')loadResults()}
+document.addEventListener('click',e=>{let a=e.target.closest('[data-page]');if(a)go(a.dataset.page)});
+async function boot(){let {data:{user}}=await sb.auth.getUser();if(!user)return;me=user;let {data}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();profile=data||{};isAdmin=profile.role==='admin';loginWrap.classList.add('hidden');app.classList.remove('hidden');logout.classList.remove('hidden');topUser.textContent=user.email;welcome.textContent='خوش آمدید'+(profile.full_name?'، '+profile.full_name:'');role.textContent=isAdmin?'مدیر سیستم':'دانش‌آموز';document.querySelectorAll('.admin').forEach(x=>x.classList.toggle('hidden',!isAdmin));quick.classList.toggle('hidden',!isAdmin);stats();loadExams()}
+loginBtn.onclick=async()=>{let {error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error)return msg('loginMsg','ورود ناموفق: '+error.message);boot()};logout.onclick=async()=>{await sb.auth.signOut();location.reload()};
+async function cnt(t){let {count}=await sb.from(t).select('id',{count:'exact',head:true});return count??'—'}async function stats(){su.textContent=await cnt('profiles');se.textContent=await cnt('exams');sq.textContent=await cnt('questions');sa.textContent=await cnt('answers')}
+async function loadUsers(){let {data,error}=await sb.from('profiles').select('*').order('created_at',{ascending:false});usersBody.innerHTML=error?`<tr><td colspan=4>${esc(error.message)}</td></tr>`:(data||[]).map(x=>`<tr><td>${esc(pick(x,['full_name','name'],'بدون نام'))}</td><td>${esc(x.id)}</td><td><span class="badge ${x.role==='admin'?'red':'green'}">${x.role==='admin'?'مدیر':'دانش‌آموز'}</span></td><td>${fmt(x.created_at)}</td></tr>`).join('')}
+async function loadSubjects(){let {data}=await sb.from('subjects').select('*');es.innerHTML='<option value="">بدون درس مشخص</option>'+(data||[]).map(x=>`<option value="${x.id}">${esc(pick(x,['name','title']))}</option>`).join('')}
+async function loadExams(){let {data,error}=await sb.from('exams').select('*').order('created_at',{ascending:false});if(error){examCards.innerHTML=`<div class="card">${esc(error.message)}</div>`;return}exams=data||[];qe.innerHTML='<option value="">انتخاب آزمون</option>'+exams.map(x=>`<option value="${x.id}">${esc(pick(x,['title','name']))}</option>`).join('');examCards.innerHTML=exams.length?exams.map(x=>`<div class="card"><div class="ico">📝</div><b>${esc(pick(x,['title','name']))}</b><p class="muted">${esc(pick(x,['description'],'بدون توضیحات'))}</p><span class="badge">${esc(pick(x,['duration_minutes','duration'],'—'))} دقیقه</span></div>`).join(''):'<div class="empty">هنوز آزمونی ساخته نشده است.</div>'}
+saveExam.onclick=async()=>{if(!et.value.trim())return msg('examMsg','عنوان آزمون را وارد کنید.');let row={title:et.value.trim(),description:ede.value.trim(),duration_minutes:+ed.value||60,is_active:ea.value==='true'};if(es.value)row.subject_id=es.value;if(est.value)row.starts_at=new Date(est.value).toISOString();if(een.value)row.ends_at=new Date(een.value).toISOString();let {error}=await sb.from('exams').insert(row);if(error)return msg('examMsg','خطا: '+error.message);msg('examMsg','آزمون با موفقیت ساخته شد.',true);et.value='';ede.value='';loadExams();stats()}
+newQ.onclick=()=>{qmodal.classList.add('show');loadExams()};saveQ.onclick=async()=>{if(!qe.value||!qt.value.trim())return msg('qmsg','آزمون و متن سؤال الزامی است.');let row={exam_id:qe.value,question_text:qt.value.trim(),option_a:qa.value,option_b:qb.value,option_c:qc.value,option_d:qd.value,correct_option:qco.value,points:+qp.value||1};let {error}=await sb.from('questions').insert(row);if(error)return msg('qmsg','خطا: '+error.message);msg('qmsg','سؤال ثبت شد.',true);qt.value=qa.value=qb.value=qc.value=qd.value='';loadQuestions();stats()}
+async function loadQuestions(){let {data,error}=await sb.from('questions').select('*').order('created_at',{ascending:false});qbody.innerHTML=error?`<tr><td colspan=4>${esc(error.message)}</td></tr>`:(data||[]).map(x=>{let e=exams.find(z=>String(z.id)===String(x.exam_id));return `<tr><td>${esc(pick(x,['question_text','text']))}</td><td>${esc(pick(e,['title','name'],x.exam_id))}</td><td>${esc(pick(x,['correct_option','correct_answer']))}</td><td>${esc(pick(x,['points'],1))}</td></tr>`}).join('')}
+async function loadResults(){let {data,error}=await sb.from('exam_attempts').select('*').order('created_at',{ascending:false});rbody.innerHTML=error?`<tr><td colspan=5>${esc(error.message)}</td></tr>`:(data||[]).map(x=>{let e=exams.find(z=>String(z.id)===String(x.exam_id));return `<tr><td>${esc(pick(x,['user_id','profile_id']))}</td><td>${esc(pick(e,['title','name'],x.exam_id))}</td><td>${esc(pick(x,['score','total_score']))}</td><td>${esc(pick(x,['status'],'ثبت‌شده'))}</td><td>${fmt(pick(x,['submitted_at','created_at'],null))}</td></tr>`}).join('')}
+boot();
+</script></body></html>
